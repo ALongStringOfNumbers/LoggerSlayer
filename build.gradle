@@ -14,10 +14,12 @@ buildscript {
     dependencies {
         classpath "com.github.GregTechCE:ForgeGradle:FG_2.3-SNAPSHOT"
         classpath "org.spongepowered:mixingradle:0.6-SNAPSHOT"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
+apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: "org.spongepowered.mixin"
+apply plugin: "com.github.johnrengelman.shadow"
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
@@ -25,7 +27,7 @@ version = "1.0"
 group = "mod.alson.loggerslayer"
 archivesBaseName = "loggerslayer"
 
-sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
     sourceCompatibility = targetCompatibility = '1.8'
 }
@@ -37,6 +39,15 @@ minecraft {
     
     mappings = "stable_39"
     makeObfSourceJar = false
+
+    def args = [
+            "-Dfml.coreMods.load=mod.alson.loggerslayer.LoggerSlayerPlugin",
+            "-Dmixin.hotSwap=true",
+            "-Dmixin.checks.interfaces=true",
+            "-Dmixin.debug.export=true"
+    ]
+    clientJvmArgs.addAll(args)
+    serverJvmArgs.addAll(args)
 }
 
 repositories {
@@ -48,9 +59,7 @@ repositories {
 
 dependencies {
 
-    provided ('org.spongepowered:mixin:0.8.1-SNAPSHOT') { // Don't include in the build
-        transitive = false
-    }
+    deobfCompile('org.spongepowered:mixin:0.8.1-SNAPSHOT')
 }
 
 processResources {
@@ -78,10 +87,24 @@ sourceSets {
     }
 }
 
+//Create a minimal jar that does not contain shadowed mixin things
 jar {
+    classifier "thin"
     manifest.attributes(
             'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
             'MixinConfigs': 'mixins.loggerslayer.json',
             'FMLCorePluginContainsFMLMod': 'true',
     )
+}
+
+//Shadow in Sponge mixins and other stuff, in case someone is not already providing it
+shadowJar {
+    classifier ""
+    exclude "LICENSE.txt", "dummyThing"
+}
+
+//Artifact both the non-shadowed and shadowed version of the jar
+artifacts {
+    archives jar
+    archives shadowJar
 }
