@@ -18,7 +18,8 @@ public final class LoggerSlayerPlugin implements IFMLLoadingPlugin {
     static {
         LOGGER.info("LoggerSlayer Mixins Initializing...");
         MixinBootstrap.init();
-        addConfig();
+        //Decide if this should be done
+        //addConfig();
     }
 
     private static void addConfig() {

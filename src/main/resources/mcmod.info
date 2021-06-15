@@ -9,7 +9,7 @@
   "updateUrl": "",
   "authorList": ["ALongStringOfNumbers"],
   "credits": "",
-  "logoFile": "",
+  "logoFile": "/assets/loggerslayer/logo.png",
   "screenshots": [],
   "dependencies": []
 }
